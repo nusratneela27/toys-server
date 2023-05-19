@@ -41,6 +41,8 @@ async function run() {
         const dogCollection = client.db('toysDB').collection('dog');
         const catCollection = client.db('toysDB').collection('cat');
 
+        const addCollection = client.db('toysDB').collection('addToy');
+
         app.get('/teddy', async (req, res) => {
             const cursor = teddyCollection.find();
             const result = await cursor.toArray();
@@ -97,6 +99,14 @@ async function run() {
             const result = await catCollection.findOne(query, options)
             res.send(result)
         })
+
+        // add toy
+        app.post('/addToy', async (req, res) => {
+            const add = req.body;
+            console.log(add);
+            const result = await addCollection.insertOne(add);
+            res.send(result)
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
