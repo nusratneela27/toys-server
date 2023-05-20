@@ -40,6 +40,28 @@ async function run() {
 
         const toyCollection = client.db('toysDB').collection('addToy');
 
+
+        // Creating index on two fields
+        const indexKeys = { toyName: 1, category: 1 }; // Replace field1 and field2 with your actual field names
+        const indexOptions = { name: "toyCategory" }; // Replace index_name with the desired index name
+
+        const result = await toyCollection.createIndex(indexKeys, indexOptions);
+
+        app.get('/toyNameBySearch/:text', async (req, res) => {
+            const searchText = req.params.text;
+
+            const result = await toyCollection.find({
+                toyName: { $regex: searchText, $options: "i" }
+                // $or: [
+                //     { toyName: { $regex: searchText, $options: "i" } },
+                //     { category: { $regex: searchText, $options: "i" } }
+                // ],
+            }).toArray();
+
+            res.send(result)
+        })
+
+
         app.get('/teddy', async (req, res) => {
             const cursor = teddyCollection.find();
             const result = await cursor.toArray();
