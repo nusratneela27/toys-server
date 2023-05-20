@@ -35,13 +35,11 @@ async function run() {
         //     res.send(result);
         // })
 
-
-
         const teddyCollection = client.db('toysDB').collection('teddy');
         const dogCollection = client.db('toysDB').collection('dog');
         const catCollection = client.db('toysDB').collection('cat');
 
-        const addCollection = client.db('toysDB').collection('addToy');
+        const toyCollection = client.db('toysDB').collection('addToy');
 
         app.get('/teddy', async (req, res) => {
             const cursor = teddyCollection.find();
@@ -103,10 +101,20 @@ async function run() {
         // add toy
         app.post('/addToy', async (req, res) => {
             const add = req.body;
-            console.log(add);
-            const result = await addCollection.insertOne(add);
+            const result = await toyCollection.insertOne(add);
             res.send(result)
         });
+
+        app.get('/allToys', async (req, res) => {
+            const result = await toyCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        app.get('/myToys/:email', async (req, res) => {
+            console.log(req.params.email);
+            const result = await toyCollection.find({ email: req.params.email }).toArray();
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
