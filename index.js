@@ -86,7 +86,7 @@ async function run() {
         })
 
         //update toy
-        app.patch('/updateToy/:id', async (req, res) => {
+        app.put('/updateToy/:id', async (req, res) => {
             const id = req.params.id;
             const body = req.body;
             console.log(body);
