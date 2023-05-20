@@ -26,7 +26,6 @@ async function run() {
         await client.connect();
 
 
-
         // const categoryCollection = client.db('toysDB').collection('category');
 
         // app.get('/category', async (req, res) => {
