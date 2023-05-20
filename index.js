@@ -25,19 +25,6 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-
-        // const categoryCollection = client.db('toysDB').collection('category');
-
-        // app.get('/category', async (req, res) => {
-        //     const cursor = categoryCollection.find();
-        //     const result = await cursor.toArray();
-        //     res.send(result);
-        // })
-
-        const teddyCollection = client.db('toysDB').collection('teddy');
-        const dogCollection = client.db('toysDB').collection('dog');
-        const catCollection = client.db('toysDB').collection('cat');
-
         const toyCollection = client.db('toysDB').collection('addToy');
 
 
@@ -47,6 +34,7 @@ async function run() {
 
         const result = await toyCollection.createIndex(indexKeys, indexOptions);
 
+        // search by toy name
         app.get('/toyNameBySearch/:text', async (req, res) => {
             const searchText = req.params.text;
 
@@ -61,63 +49,14 @@ async function run() {
             res.send(result)
         })
 
-
-        app.get('/teddy', async (req, res) => {
-            const cursor = teddyCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-        })
-
-        app.get('/dog', async (req, res) => {
-            const cursor = dogCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-        })
-
-        app.get('/cat', async (req, res) => {
-            const cursor = catCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-        })
-
-        app.get('/teddy/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) }
-
-            const options = {
-                // Include only the `title` and `imdb` fields in the returned document
-                projection: { title: 1, price: 1, img: 1 },
-            };
-
-            const result = await teddyCollection.findOne(query, options)
-            res.send(result)
-        })
-
-        app.get('/dog/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) }
-
-            const options = {
-                // Include only the `title` and `imdb` fields in the returned document
-                projection: { title: 1, price: 1, img: 1 },
-            };
-
-            const result = await dogCollection.findOne(query, options)
-            res.send(result)
-        })
-
-        app.get('/cat/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) }
-
-            const options = {
-                // Include only the `title` and `imdb` fields in the returned document
-                projection: { title: 1, price: 1, img: 1 },
-            };
-
-            const result = await catCollection.findOne(query, options)
-            res.send(result)
-        })
+        // get all toys by category
+        app.get('/allToys/:text', async (req, res) => {
+            console.log(req.params.text);
+            if (req.params.text == "dog" || req.params.text == "cat" || req.params.text == "teddy") {
+                const result = await toyCollection.find({ category: req.params.text }).toArray();
+                res.send(result);
+            }
+        });
 
         // add toy
         app.post('/addToy', async (req, res) => {
@@ -126,14 +65,48 @@ async function run() {
             res.send(result)
         });
 
+        // get all toy
         app.get('/allToys', async (req, res) => {
             const result = await toyCollection.find({}).toArray();
             res.send(result);
         });
 
+        //get toy by single id
+        app.get('/allToys/:id', async (req, res) => {
+            console.log(req.params.id);
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await toyCollection.findOne(query);
+            res.send(result)
+        })
+
+        //get toy by user email
         app.get('/myToys/:email', async (req, res) => {
             console.log(req.params.email);
             const result = await toyCollection.find({ email: req.params.email }).toArray();
+            res.send(result);
+        })
+
+        app.patch('/updateToy/:id', async (req, res) => {
+            const id = req.params.id;
+            const body = req.body;
+            console.log(body);
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    price: body.price,
+                    detail: body.detail,
+                    quantity: body.quantity
+                },
+            };
+            const result = await toyCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+        app.delete('/myToys/id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await toyCollection.deleteOne(query);
             res.send(result);
         })
 
