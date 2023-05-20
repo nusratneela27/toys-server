@@ -27,12 +27,48 @@ async function run() {
 
         const toyCollection = client.db('toysDB').collection('addToy');
 
-
         // Creating index on two fields
         const indexKeys = { toyName: 1, category: 1 }; // Replace field1 and field2 with your actual field names
         const indexOptions = { name: "toyCategory" }; // Replace index_name with the desired index name
 
         const result = await toyCollection.createIndex(indexKeys, indexOptions);
+
+        // get all toy
+        app.get('/allToys', async (req, res) => {
+            const result = await toyCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        //get toy by single id
+        app.get('/allToys/:id', async (req, res) => {
+            const id = (req.params.id)
+            const query = { _id: new ObjectId(id) }
+            const result = await toyCollection.findOne(query)
+            res.send(result)
+        })
+
+        //get all toys by category
+        app.get('/category/:text', async (req, res) => {
+            console.log(req.params.text);
+            if (req.params.text == "dog" || req.params.text == "cat" || req.params.text == "teddy") {
+                const result = await toyCollection.find({ category: req.params.text }).toArray();
+                res.send(result);
+            }
+        });
+
+        // add toy
+        app.post('/addToy', async (req, res) => {
+            const add = req.body;
+            const result = await toyCollection.insertOne(add);
+            res.send(result)
+        });
+
+        //get toy by user email
+        app.get('/myToys/:email', async (req, res) => {
+            console.log(req.params.email);
+            const result = await toyCollection.find({ email: req.params.email }).toArray();
+            res.send(result);
+        })
 
         // search by toy name
         app.get('/toyNameBySearch/:text', async (req, res) => {
@@ -49,44 +85,7 @@ async function run() {
             res.send(result)
         })
 
-        // get all toys by category
-        app.get('/allToys/:text', async (req, res) => {
-            console.log(req.params.text);
-            if (req.params.text == "dog" || req.params.text == "cat" || req.params.text == "teddy") {
-                const result = await toyCollection.find({ category: req.params.text }).toArray();
-                res.send(result);
-            }
-        });
-
-        // add toy
-        app.post('/addToy', async (req, res) => {
-            const add = req.body;
-            const result = await toyCollection.insertOne(add);
-            res.send(result)
-        });
-
-        // get all toy
-        app.get('/allToys', async (req, res) => {
-            const result = await toyCollection.find({}).toArray();
-            res.send(result);
-        });
-
-        //get toy by single id
-        app.get('/allToys/:id', async (req, res) => {
-            console.log(req.params.id);
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) }
-            const result = await toyCollection.findOne(query);
-            res.send(result)
-        })
-
-        //get toy by user email
-        app.get('/myToys/:email', async (req, res) => {
-            console.log(req.params.email);
-            const result = await toyCollection.find({ email: req.params.email }).toArray();
-            res.send(result);
-        })
-
+        //update toy
         app.patch('/updateToy/:id', async (req, res) => {
             const id = req.params.id;
             const body = req.body;
@@ -103,12 +102,15 @@ async function run() {
             res.send(result);
         });
 
-        app.delete('/myToys/id', async (req, res) => {
+        //delete toy from database
+        app.delete('/myToys/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await toyCollection.deleteOne(query);
             res.send(result);
         })
+
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
