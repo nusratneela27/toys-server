@@ -35,7 +35,7 @@ async function run() {
 
         // get all toy
         app.get('/allToys', async (req, res) => {
-            const result = await toyCollection.find({}).toArray();
+            const result = await toyCollection.find({}).limit(20).sort({ price: 1 }).toArray();
             res.send(result);
         });
 
@@ -66,8 +66,11 @@ async function run() {
         //get toy by user email
         app.get('/myToys/:email', async (req, res) => {
             console.log(req.params.email);
-            const result = await toyCollection.find({ email: req.params.email }).toArray();
+            const query = { email: req.params.email }
+            const result = await toyCollection.find(query).sort({ price: 1 }).toArray();
             res.send(result);
+            // const result = await toyCollection.find({ email: req.params.email }).sort({ price: -1 }).toArray();
+            // res.send(result);
         })
 
         // search by toy name
@@ -86,7 +89,7 @@ async function run() {
         })
 
         //update toy
-        app.put('/updateToy/:id', async (req, res) => {
+        app.put('/updated/:id', async (req, res) => {
             const id = req.params.id;
             const body = req.body;
             console.log(body);
