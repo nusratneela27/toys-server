@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const toyCollection = client.db('toysDB').collection('addToy');
 
@@ -49,7 +49,6 @@ async function run() {
 
         //get all toys by category
         app.get('/category/:text', async (req, res) => {
-            console.log(req.params.text);
             if (req.params.text == "dog" || req.params.text == "cat" || req.params.text == "teddy") {
                 const result = await toyCollection.find({ category: req.params.text }).toArray();
                 res.send(result);
@@ -65,7 +64,6 @@ async function run() {
 
         //get toy by user email
         app.get('/myToys/:email', async (req, res) => {
-            console.log(req.params.email);
             const query = { email: req.params.email }
             const result = await toyCollection.find(query).sort({ price: 1 }).toArray();
             res.send(result);
@@ -76,7 +74,6 @@ async function run() {
         // search by toy name
         app.get('/toyNameBySearch/:text', async (req, res) => {
             const searchText = req.params.text;
-
             const result = await toyCollection.find({
                 toyName: { $regex: searchText, $options: "i" }
                 // $or: [
@@ -89,10 +86,9 @@ async function run() {
         })
 
         //update toy
-        app.put('/updated/:id', async (req, res) => {
+        app.put('/allToys/:id', async (req, res) => {
             const id = req.params.id;
             const body = req.body;
-            console.log(body);
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -116,7 +112,7 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
