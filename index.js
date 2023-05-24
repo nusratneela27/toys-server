@@ -33,6 +33,8 @@ async function run() {
 
         const result = await toyCollection.createIndex(indexKeys, indexOptions);
 
+
+
         // get all toy
         app.get('/allToys', async (req, res) => {
             const result = await toyCollection.find({}).limit(20).sort({ price: 1 }).toArray();
@@ -108,6 +110,8 @@ async function run() {
             const result = await toyCollection.deleteOne(query);
             res.send(result);
         })
+
+
 
 
 
